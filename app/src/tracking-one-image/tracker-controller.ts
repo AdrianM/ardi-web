@@ -4,7 +4,7 @@ import {Component,View, bootstrap} from 'angular2/angular2';
     selector: 'tracking-app'
 })
 @View({
-    templateUrl: 'src/tracking/tracker.tpl.html'
+    templateUrl: 'src/tracking-one-image/tracker.tpl.html'
 })
 class TrackerComponent {
     private canvas:any;
