@@ -9,7 +9,7 @@ declare var BoundingBoxTracker: any;
     selector: 'tracking-app'
 })
 @View({
-    templateUrl: 'src/tracking-one-image/tracker.tpl.html'
+    templateUrl: 'src/tracking/tracker.tpl.html'
 })
 class TrackerComponent {
     private canvas: any;
@@ -29,10 +29,10 @@ class TrackerComponent {
     private boxLeft: number = 403;
     private videoHeight: number = 295;
     private videoWidth: number = 393;
-
     private templateWidth: number = 300;
-    private templateHeight: number = 169;
-    private recognizeLimitInPercent: number = 80;
+    private templateHeight: number = 378;
+
+    private recognizeLimitInPercent: number = 60;
 
     constructor() {
         this.initialize();

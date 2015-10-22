@@ -2,10 +2,10 @@
 <html>
 <head>
     <title>ARDI</title>
-    <script src="./node_modules/systemjs/dist/system.src.js"></script>
-    <script src="./node_modules/typescript/lib/typescript.js"></script>
-    <script src="./node_modules/angular2/bundles/angular2.dev.js"></script>
-    <script src="./node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <script src="node_modules/typescript/lib/typescript.js"></script>
+    <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
+    <script src="node_modules/jquery/dist/jquery.js"></script>
 
     <link rel="stylesheet" href="bower_components/tracking/examples/assets/demo.css">
     <link rel="stylesheet" href="./ardi.css">
@@ -16,7 +16,7 @@
     <script>
         System.config({
             transpiler: 'typescript',
-            typescriptOptions: { emitDecoratorMetadata: true }
+            typescriptOptions: {emitDecoratorMetadata: true}
         });
         System.import('./src/tracking-one-image/tracker-controller.ts');
     </script>
