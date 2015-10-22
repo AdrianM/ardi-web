@@ -147,8 +147,8 @@ class TrackerComponent {
 
     private intializeGuiControls() {
         var gui = new dat.GUI();
-        gui.add(tracker, 'fastThreshold', 20, 100).step(5);
-        gui.add(tracker, 'blur', 1.1, 5.0).step(0.1);
+        gui.add(this.tracker, 'fastThreshold', 20, 100).step(5);
+        gui.add(this.tracker, 'blur', 1.1, 5.0).step(0.1);
     }
 }
 
