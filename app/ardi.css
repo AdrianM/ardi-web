@@ -1,0 +1,27 @@
+.ardi-boundingBox {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px dashed;
+  opacity: .5;
+  z-index: 1;
+}
+.hidden-image {
+  position: absolute;
+  right: -150px;
+  top: 0px;
+  width: 200px;
+}
+#video {
+  position: absolute;
+  top: -1000px;
+  cursor: crosshair;
+}
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
