@@ -24,6 +24,8 @@ class TrackerComponent {
     private boxLeft: number = 403;
     private videoHeight: number = 295;
     private videoWidth: number = 393;
+    private templateWidth: number = 300;
+    private templateHeight: number = 378;
 
     constructor() {
         this.initialize();
@@ -129,21 +131,17 @@ class TrackerComponent {
     }
 
     private setTackerTemplate() {
-        let width = 300;
-        let height = 378;
         this.templateImageData = this.getGreyscaledImageFromContainer();
-        this.canvas.width = this.boxLeft + width;
+        this.canvas.width = this.boxLeft + this.templateWidth;
         this.context.putImageData(this.templateImageData, this.boxLeft, 0);
         this.trackerTask.stop();
-        this.tracker.setTemplate(this.templateImageData.data, width, height);
+        this.tracker.setTemplate(this.templateImageData.data, this.templateWidth, this.templateHeight);
         this.trackerTask.run();
     }
 
     private getGreyscaledImageFromContainer() {
-        let width = 300;
-        let height = 378;
-        this.context.drawImage(this.image1, 0, 0, width, height);
-        return this.context.getImageData(0, 0, width, height);
+        this.context.drawImage(this.image1, 0, 0, this.templateWidth, this.templateHeight);
+        return this.context.getImageData(0, 0, this.templateWidth, this.templateHeight);
     }
 }
 
