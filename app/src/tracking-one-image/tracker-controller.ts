@@ -1,5 +1,10 @@
 import {Component,View, bootstrap} from 'angular2/angular2';
 
+declare var window: any;
+declare var tracking: any;
+declare var dat: any;
+declare var BoundingBoxTracker: any;
+
 @Component({
     selector: 'tracking-app'
 })
