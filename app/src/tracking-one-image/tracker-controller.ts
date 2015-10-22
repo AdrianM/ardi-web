@@ -33,6 +33,7 @@ class TrackerComponent {
         this.initializeTracker();
         this.requestFrame();
         this.setTackerTemplate();
+        this.intializeGuiControls();
     }
 
     private initialize() {
@@ -142,6 +143,12 @@ class TrackerComponent {
     private getGreyscaledImageFromContainer() {
         this.context.drawImage(this.image1, 0, 0, this.templateWidth, this.templateHeight);
         return this.context.getImageData(0, 0, this.templateWidth, this.templateHeight);
+    }
+
+    private intializeGuiControls() {
+        var gui = new dat.GUI();
+        gui.add(tracker, 'fastThreshold', 20, 100).step(5);
+        gui.add(tracker, 'blur', 1.1, 5.0).step(0.1);
     }
 }
 
