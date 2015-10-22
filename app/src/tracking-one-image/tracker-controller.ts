@@ -7,29 +7,33 @@ import {Component,View, bootstrap} from 'angular2/angular2';
     templateUrl: 'src/tracking-one-image/tracker.tpl.html'
 })
 class TrackerComponent {
-    private canvas:any;
-    private context:any;
-    private image1:any;
-    private image2:any;
-    private video:any;
-    private boundingBox:any;
-    private confidenceElement:any;
-    private confidenceOverallElement:any;
+    private canvas: any;
+    private context: any;
+    private image1: any;
+    private image2: any;
+    private video: any;
+    private boundingBox: any;
+    private confidenceElement: any;
+    private confidenceOverallElement: any;
     private trackerTask: any;
     private tracker: any;
     private templateImageData: any;
-    private BoundingBoxTracker : any;
 
-    private width:number = 393;
-    private height:number = 295;
-    private boxLeft:number = 403;
+    private width: number = 393;
+    private height: number = 295;
+    private boxLeft: number = 403;
     private videoHeight: number = 295;
     private videoWidth: number = 393;
 
-    private actualOveralConfidenceMax = 0;
-    private capturing:boolean = false;
-
     constructor() {
+        this.initialize();
+        this.createTracker();
+        this.initializeTracker();
+        this.requestFrame();
+        this.setTackerTemplate();
+    }
+
+    private initialize() {
         this.canvas = $('#canvas')[0];
         this.context = this.canvas.getContext('2d');
         this.image1 = $('#image1')[0];
@@ -42,25 +46,20 @@ class TrackerComponent {
         window.descriptorLength = 256;
         window.matchesShown = 30;
         window.blurRadius = 3;
-
-        this.createBoundingBoxTracker();
-        this.intializeTracker();
-        this.requestFrame();
-        this.setTackerTemplate();
     }
 
-    private createBoundingBoxTracker(){
-        this.BoundingBoxTracker = () => {
-            this.BoundingBoxTracker.base(this, 'constructor');
+    private createTracker() {
+        let BoundingBoxTracker = function () {
+            BoundingBoxTracker.base(this, 'constructor');
         };
-        tracking.inherits(this.BoundingBoxTracker, tracking.Tracker);
+        tracking.inherits(BoundingBoxTracker, tracking.Tracker);
 
-        this.BoundingBoxTracker.prototype.templateDescriptors_ = null;
-        this.BoundingBoxTracker.prototype.templateKeypoints_ = null;
-        this.BoundingBoxTracker.prototype.fastThreshold = 60;
-        this.BoundingBoxTracker.prototype.blur = 3;
+        BoundingBoxTracker.prototype.templateDescriptors_ = null;
+        BoundingBoxTracker.prototype.templateKeypoints_ = null;
+        BoundingBoxTracker.prototype.fastThreshold = 60;
+        BoundingBoxTracker.prototype.blur = 3;
 
-        this.BoundingBoxTracker.prototype.setTemplate = function (pixels, width, height) {
+        BoundingBoxTracker.prototype.setTemplate = function (pixels, width, height) {
             let blur = tracking.Image.blur(pixels, width, height, 3);
             let grayscale = tracking.Image.grayscale(blur, width, height);
             this.templateKeypoints_ = tracking.Fast.findCorners(grayscale, width, height);
@@ -68,7 +67,7 @@ class TrackerComponent {
         };
 
 
-        this.BoundingBoxTracker.prototype.track = function (pixels, width, height) {
+        BoundingBoxTracker.prototype.track = function (pixels, width, height) {
             let blur = tracking.Image.blur(pixels, width, height, this.blur);
             let grayscale = tracking.Image.grayscale(blur, width, height);
             let keypoints = tracking.Fast.findCorners(grayscale, width, height, this.fastThreshold);
@@ -77,18 +76,16 @@ class TrackerComponent {
                 data: tracking.Brief.reciprocalMatch(this.templateKeypoints_, this.templateDescriptors_, keypoints, descriptors)
             });
         };
+        this.tracker = new BoundingBoxTracker();
     }
 
-    private intializeTracker(){
-        this.tracker = new this.BoundingBoxTracker();
+    private initializeTracker() {
+        let actualOveralConfidenceMax = 0;
+
         this.tracker.on('track', (event) => {
-            if (this.capturing) {
-                return;
-            }
             event.data.sort((a, b)  => {
                 return b.confidence - a.confidence;
             });
-
             this.context.putImageData(this.templateImageData, this.boxLeft, 0);
 
             let confidenceMax = 0;
@@ -108,13 +105,13 @@ class TrackerComponent {
             }
             this.confidenceElement.textContent = confidenceMax * 100;
 
-            if (confidenceMax > this.actualOveralConfidenceMax) {
-                this.actualOveralConfidenceMax = confidenceMax;
-                this.confidenceOverallElement.textContent = this.actualOveralConfidenceMax * 100;
+            if (confidenceMax > actualOveralConfidenceMax) {
+                actualOveralConfidenceMax = confidenceMax;
+                this.confidenceOverallElement.textContent = actualOveralConfidenceMax * 100;
             }
         });
 
-        this.trackerTask = tracking.track(this.video, this.tracker, {camera: true});
+        this.trackerTask = tracking.track(this.video, this.tracker, { camera: true });
         this.trackerTask.stop();// Waits for the user to accept the camera.
     }
 
