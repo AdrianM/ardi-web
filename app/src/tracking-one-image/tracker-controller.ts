@@ -32,6 +32,8 @@ class TrackerComponent {
     private templateWidth: number = 300;
     private templateHeight: number = 378;
 
+    private recognizeLimitInPercent: number = 60;
+
     constructor() {
         this.initialize();
         this.createTracker();
@@ -108,19 +110,31 @@ class TrackerComponent {
                 this.context.stroke();
 
                 if (event.data[i].confidence > confidenceMax) {
-                    confidenceMax = event.data[i].confidence;
+                    confidenceMax = event.data[i].confidence * 100;
                 }
             }
-            this.confidenceElement.textContent = confidenceMax * 100;
+            this.confidenceElement.textContent = confidenceMax;
 
             if (confidenceMax > actualOveralConfidenceMax) {
                 actualOveralConfidenceMax = confidenceMax;
-                this.confidenceOverallElement.textContent = actualOveralConfidenceMax * 100;
+                this.confidenceOverallElement.textContent = actualOveralConfidenceMax;
+            }
+
+            if (confidenceMax > this.recognizeLimitInPercent) {
+                this.addIdentifiedNotification();
             }
         });
 
         this.trackerTask = tracking.track(this.video, this.tracker, { camera: true });
         this.trackerTask.stop();// Waits for the user to accept the camera.
+    }
+
+    private addIdentifiedNotification() {
+        this.context.font = "30px Verdana";
+        this.context.fillStyle = "#FF0000";
+        this.context.fillRect(0, 5, this.videoWidth, 30);
+        this.context.fillStyle = "#FFFFFF";
+        this.context.fillText("identified ", 10, 30);
     }
 
     private requestFrame() {
