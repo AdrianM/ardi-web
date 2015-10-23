@@ -1,10 +1,10 @@
 import {Component,View, bootstrap, NgFor} from 'angular2/angular2';
 import {TrackedImage} from './tracked-image.ts';
+import {ImageTracker} from './image-tracker.ts';
 
 declare var window: any;
 declare var tracking: any;
 declare var dat: any;
-declare var BoundingBoxTracker: any;
 declare var $: any;
 
 @Component({
@@ -37,19 +37,18 @@ class TrackingComponent {
         this.createTrackingImages();
         this.startVideoFrame();
         this.createAndStartTracker();
-        this.intializeGuiControls();
+        this.createDevGuiControls();
     }
 
     private getDomComponents() {
         this.canvas = $('#canvas')[0];
+        this.canvas.width = this.videoWidth;
         this.context = this.canvas.getContext('2d');
         this.video = $('#video')[0];
 
         window.descriptorLength = 256;
         window.matchesShown = 30;
-        window.blurRadius = 3;
-
-        this.canvas.width = this.videoWidth;
+        window.blurRadius = 3;//TODO AMO remove magic number
     }
 
     private createTrackingImages() {
@@ -61,42 +60,22 @@ class TrackingComponent {
         }
     }
 
+    private startVideoFrame() {
+        window.requestAnimationFrame(()  => {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+                try {
+                    this.context.drawImage(this.video, 0, 0, this.videoWidth, this.videoHeight);
+                } catch (err) {
+                }
+            }
+            this.startVideoFrame();
+        });
+    }
+
     private createAndStartTracker() {
-        let BoundingBoxTracker = function () {
-            BoundingBoxTracker.base(this, 'constructor');
-        };
-        tracking.inherits(BoundingBoxTracker, tracking.Tracker);
-
-        BoundingBoxTracker.prototype.imagesToTrack = [];
-        BoundingBoxTracker.prototype.fastThreshold = 60;
-        BoundingBoxTracker.prototype.blur = 3;
-
-        BoundingBoxTracker.prototype.setTemplate = function (trackedImages: Array<TrackedImage>, width, height) {
-            this.imagesToTrack = trackedImages;
-
-            this.imagesToTrack.forEach(function (imageToTrack: TrackedImage) {
-                let blur = tracking.Image.blur(imageToTrack.pixels, width, height, this.blur);
-                let grayscale = tracking.Image.grayscale(blur, width, height);
-                imageToTrack.templateKeypoints = tracking.Fast.findCorners(grayscale, width, height);
-                imageToTrack.templateDescriptors = tracking.Brief.getDescriptors(grayscale, width, imageToTrack.templateKeypoints);//TODO AMO do it inside
-            }, this);
-        };
-
-        BoundingBoxTracker.prototype.track = function (pixels, width, height) {
-            let blur = tracking.Image.blur(pixels, width, height, this.blur);
-            let grayscale = tracking.Image.grayscale(blur, width, height);
-            let keypoints = tracking.Fast.findCorners(grayscale, width, height, this.fastThreshold);
-            let descriptors = tracking.Brief.getDescriptors(grayscale, width, keypoints);
-
-            this.imagesToTrack.forEach(function (imageToTrack: TrackedImage) {
-                imageToTrack.match = tracking.Brief.reciprocalMatch(imageToTrack.templateKeypoints, imageToTrack.templateDescriptors, keypoints, descriptors);
-            }, this);
-
-            this.emit('track', {
-                matchingResults: this.imagesToTrack
-            });
-        };
-        this.tracker = new BoundingBoxTracker();
+        this.tracker = new ImageTracker();
+        tracking.inherits(ImageTracker, tracking.Tracker);//TODO AMO necessary?
         this.tracker.on('track', this.onTrack.bind(this));
         this.trackerTask = tracking.track(this.video, this.tracker, { camera: true });
         this.trackerTask.stop();// Waits for the user to accept the camera.
@@ -139,23 +118,10 @@ class TrackingComponent {
         this.context.fillText("Identified: " + imageToTrack.title, position.x + 10, position.y + 30);
     }
 
-    private intializeGuiControls() {
+    private createDevGuiControls() {
         var gui = new dat.GUI();
         gui.add(this.tracker, 'fastThreshold', 20, 100).step(5);
         gui.add(this.tracker, 'blur', 1.1, 5.0).step(0.1);
-    }
-
-    private startVideoFrame() {
-        window.requestAnimationFrame(()  => {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-                try {
-                    this.context.drawImage(this.video, 0, 0, this.videoWidth, this.videoHeight);
-                } catch (err) {
-                }
-            }
-            this.startVideoFrame();
-        });
     }
 }
 
