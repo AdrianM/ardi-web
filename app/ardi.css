@@ -8,9 +8,18 @@
 }
 .hidden-image {
   position: absolute;
-  right: -500px;
+  right: -1px;
   top: 0px;
-  width: 200px;
+  width: 100px;
+}
+.detection-images {
+  position: absolute;
+  right: -1px;
+  top: 0px;
+}
+.detection-images img{
+  max-width: 100px;
+  height: 100px;
 }
 #video {
   position: absolute;

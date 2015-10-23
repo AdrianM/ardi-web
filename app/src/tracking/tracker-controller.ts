@@ -27,9 +27,11 @@ class TrackerComponent {
     private height: number = 295;
     private videoHeight: number = 295;
     private videoWidth: number = 393;
-    private templateWidth: number = 300;
-    private templateHeight: number = 378;
+    private videoWidth: number = 786;
+    private videoHeight: number = 590;
 
+    private templateWidth: number = 500;
+    private templateHeight: number = 524;
     private recognizeLimitInPercent: number = 85;
 
     constructor() {
