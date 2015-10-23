@@ -47,8 +47,8 @@ class TrackerComponent {
         this.detectionImages = $('#detectionImages').children();
         this.video = $('#video')[0];
         this.boundingBox = $('#boundingBox')[0];
-        this.confidenceElement = $('#confidence')[0];
-        this.confidenceOverallElement = $('#confidenceOverall')[0];
+        this.confidenceElement = $('#confidence');
+        this.confidenceOverallElement = $('#confidenceOverall');
 
         window.descriptorLength = 256;
         window.matchesShown = 30;
@@ -105,6 +105,7 @@ class TrackerComponent {
         this.tracker.on('track', (event) => {
 
             let confidenceMax = [];
+            this.confidenceElement.empty();
 
             for (let i = 0; i < event.matchingResults.length; i++) {
                 let result = event.matchingResults[i];
@@ -121,11 +122,11 @@ class TrackerComponent {
                         confidenceMax[i] = result[j].confidence * 100;
                     }
                 }
-                this.confidenceElement.textContent = confidenceMax;
+                this.confidenceElement.append('<div>'+i + ': '+confidenceMax[i]+'</div>');
 
                 if (confidenceMax[i] > actualOveralConfidenceMax[i] || !actualOveralConfidenceMax[i]) {
                     actualOveralConfidenceMax[i] = confidenceMax[i];
-                    this.confidenceOverallElement.textContent = actualOveralConfidenceMax;
+                    this.confidenceOverallElement.textContent = actualOveralConfidenceMax;//TODO AMO do it the angular way
                 }
 
                 if (confidenceMax[i] > this.recognizeLimitInPercent) {
@@ -167,7 +168,6 @@ class TrackerComponent {
             let templateImageData = this.context.getImageData(0, 0, this.templateWidth, this.templateHeight).data;
             imagePixels.push(templateImageData);
         }
-
 
         this.trackerTask.stop();
         this.tracker.setTemplate(imagePixels, this.templateWidth, this.templateHeight);
