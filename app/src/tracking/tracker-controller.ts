@@ -1,4 +1,4 @@
-import {Component,View, bootstrap} from 'angular2/angular2';
+import {Component,View, bootstrap, NgFor} from 'angular2/angular2';
 import {TrackedImage} from './tracked-image.ts';
 
 declare var window: any;
@@ -11,7 +11,8 @@ declare var $: any;
     selector: 'tracking-app'
 })
 @View({
-    templateUrl: 'src/tracking/tracker.tpl.html'
+    templateUrl: 'src/tracking/tracker.tpl.html',
+    directives: [NgFor]
 })
 class TrackerComponent {
     private canvas: any;
@@ -30,7 +31,7 @@ class TrackerComponent {
 
     private templateWidth: number = 500;
     private templateHeight: number = 524;
-    private recognizeLimitInPercent: number = 75;
+    private recognizeLimitInPercent: number = 85;
 
     public trackedImages: Array<TrackedImage> = [];
 
@@ -105,30 +106,34 @@ class TrackerComponent {
 
     private initializeTracker() {
         //TODO AMO nicer
-        this.tracker.on('track', (event) => {
-            event.matchingResults.forEach(function (imageToTrack: TrackedImage) {
-                imageToTrack.match.sort((a, b)  => {
-                    return b.confidence - a.confidence;
-                });
-
-                for (let j = 0; j < Math.min(10, imageToTrack.match.length); j++) {
-                    let frame = imageToTrack.match[j].keypoint2;
-                    this.context.fillStyle = "#FF0000";
-                    this.context.fillRect(frame[0], frame[1], 4, 4);
-
-                    if (imageToTrack.match[j].confidence > imageToTrack.confidenceOfMatch) {
-                        imageToTrack.confidenceOfMatch = imageToTrack.match[j].confidence * 100;
-                    }
-                }
-
-                if (imageToTrack.confidenceOfMatch > this.recognizeLimitInPercent) {
-                    this.addIdentifiedNotification(imageToTrack);
-                }
-            }, this);
-        });
-
+        this.tracker.on('track', this.onTrack.bind(this));
         this.trackerTask = tracking.track(this.video, this.tracker, { camera: true });
         this.trackerTask.stop();// Waits for the user to accept the camera.
+    }
+
+    private onTrack(event) {
+        event.matchingResults.forEach((imageToTrack: TrackedImage) => {
+            imageToTrack.match.sort((a, b)  => {
+                return b.confidence - a.confidence;
+            });
+
+            imageToTrack.confidenceOfMatch = 0;
+            for (let j = 0; j < Math.min(10, imageToTrack.match.length); j++) {
+                let frame = imageToTrack.match[j].keypoint2;
+                this.context.fillStyle = "#FF0000";
+                this.context.fillRect(frame[0], frame[1], 4, 4);
+
+                let confidence = imageToTrack.match[j].confidence * 100;
+                if (confidence > imageToTrack.confidenceOfMatch) {
+                    imageToTrack.confidenceOfMatch = confidence;
+                }
+            }
+
+            if (imageToTrack.confidenceOfMatch > this.recognizeLimitInPercent) {
+                this.addIdentifiedNotification(imageToTrack);
+            }
+        }, this);
+        this.trackedImages = event.matchingResults;
     }
 
     private addIdentifiedNotification(imageToTrack: TrackedImage) {

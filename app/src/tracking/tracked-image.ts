@@ -4,10 +4,10 @@ export class TrackedImage {
     public templateKeypoints: Array<any> = [];
     public templateDescriptors: Array<any> = [];
     public match: any = [];
-    public title: any = [];
+    public title: string;
 
     private _confidenceOfMatch: number = 0;
-    private confidenceOfMatchMaximum: number = 0;
+    public confidenceOfMatchMaximum: number = 0;
 
     constructor(public element: any, public pixels: any, public successNotificationPosition: any) {
         this.title = $(element).attr('data-title');

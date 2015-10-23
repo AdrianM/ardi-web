@@ -1,20 +1,22 @@
 <div id="detectionImages" class="detection-images">
     <img data-title="Brief" src="../../detection-images/brief1.png"/>
-    <img data-title="Pizza" src="../../detection-images/pizza1_png.png"/>
+    <img data-title="Pizza1" src="../../detection-images/pizza1.png"/>
+    <img data-title="Pizza2" src="../../detection-images/pizza2.png"/>
 </div>
 
 <video id="video" width="786" height="590" preload autoplay loop muted controls></video>
 <canvas id="canvas" width="1024" height="590"></canvas>
 
 <div>Match</div>
-<!--<ul>-->
-<!--<li [ng-repeat|trackedImage]="trackedImages">-->
-<!--{{item.title}}: {{item.confidenceOfMatch}}-->
-<!--</li>-->
-<!--</ul>-->
-<!--<div>Match (Max)</div>-->
-<!--<ul>-->
-<!--<li [ng-repeat|trackedImage]="trackedImages">-->
-<!--{{item.title}}: {{item.confidenceOfMatchMaximum}}-->
-<!--</li>-->
-<!--</ul>-->
+<ul>
+    <li *ng-for="#trackedImage of trackedImages">
+        {{trackedImage.title}}: {{trackedImage.confidenceOfMatch}}
+    </li>
+</ul>
+
+<div>Match (Max)</div>
+<ul>
+    <li *ng-for="#trackedImage of trackedImages">
+        {{trackedImage.title}}: {{trackedImage.confidenceOfMatchMaximum}}
+    </li>
+</ul>
