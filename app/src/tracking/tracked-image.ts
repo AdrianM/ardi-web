@@ -2,14 +2,24 @@ declare var $: any;
 
 export class TrackedImage {
     public title: string;
-    public match: any = [];
     public templateKeypoints: Array<any> = [];
     public templateDescriptors: Array<any> = [];
     public confidenceOfMatchMaximum: number = 0;
+    private _match: any = [];
     private _confidenceOfMatch: number = 0;
 
     constructor(public element: any, public pixels: any, public successNotificationPosition: any) {
         this.title = $(element).attr('data-title');
+    }
+
+    get match(): any {
+        return this._match;
+    }
+
+    set match(match: any) {
+        this._match = match.sort((a, b)  => {
+            return b.confidence - a.confidence;
+        });
     }
 
     get confidenceOfMatch(): number {

@@ -11,14 +11,14 @@
 
 <div>Match</div>
 <ul>
-    <li *ng-for="#trackedImage of trackedImages">
-        {{trackedImage.title}}: {{trackedImage.confidenceOfMatch}}
+    <li *ng-for="#trackingImage of trackingImages">
+        {{trackingImage.title}}: {{trackingImage.confidenceOfMatch}}
     </li>
 </ul>
 
 <div>Match (Max)</div>
 <ul>
-    <li *ng-for="#trackedImage of trackedImages">
-        {{trackedImage.title}}: {{trackedImage.confidenceOfMatchMaximum}}
+    <li *ng-for="#trackingImage of trackingImages">
+        {{trackingImage.title}}: {{trackingImage.confidenceOfMatchMaximum}}
     </li>
 </ul>
