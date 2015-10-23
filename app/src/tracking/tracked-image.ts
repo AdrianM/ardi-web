@@ -1,7 +1,10 @@
+import {TrackingConfig} from './tracking-config';
+
 declare var $: any;
 
 export class TrackedImage {
     public title: string;
+    public group: string;
     public templateKeypoints: Array<any> = [];
     public templateDescriptors: Array<any> = [];
     public confidenceOfMatchMaximum: number = 0;
@@ -10,6 +13,7 @@ export class TrackedImage {
 
     constructor(public element: any, public pixels: any, public successNotificationPosition: any) {
         this.title = $(element).attr('data-title');
+        this.group = $(element).attr('data-title');
     }
 
     get match(): any {
@@ -33,10 +37,9 @@ export class TrackedImage {
         }
     }
 
-    //TODO AMO remove width height
-    public static createFromDomElement(element, context, templateWidth, templateHeight, successNotificationPosition): TrackedImage {
-        context.drawImage(element, 0, 0, templateWidth, templateHeight);
-        let pixels = context.getImageData(0, 0, templateWidth, templateHeight).data;
+    public static createFromDomElement(element, context, successNotificationPosition): TrackedImage {
+        context.drawImage(element, 0, 0, TrackingConfig.templateWidth, TrackingConfig.templateHeight);
+        let pixels = context.getImageData(0, 0, TrackingConfig.templateWidth, TrackingConfig.templateHeight).data;
         return new TrackedImage(element, pixels, successNotificationPosition);
     }
 }

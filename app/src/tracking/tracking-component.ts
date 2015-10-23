@@ -1,6 +1,7 @@
 import {Component,View, bootstrap, NgFor} from 'angular2/angular2';
 import {TrackedImage} from './tracked-image.ts';
 import {ImageTracker} from './image-tracker.ts';
+import {TrackingConfig} from './tracking-config';
 
 declare var window: any;
 declare var tracking: any;
@@ -17,18 +18,9 @@ declare var $: any;
 class TrackingComponent {
     private canvas: any;
     private context: any;
-    private video: any
+    private video: any;
     private trackerTask: any;
     private tracker: any;
-
-    private notificationHeight: number = 30;
-    private matchingRectangleSize: number = 4;
-    private videoWidth: number = 786;
-    private videoHeight: number = 590;
-    private templateWidth: number = 500;
-    private templateHeight: number = 524;
-
-    private recognizeLimitInPercent: number = 85;
 
     public trackingImages: Array<TrackedImage> = [];
 
@@ -42,20 +34,20 @@ class TrackingComponent {
 
     private getDomComponents() {
         this.canvas = $('#canvas')[0];
-        this.canvas.width = this.videoWidth;
+        this.canvas.width = TrackingConfig.videoWidth;
         this.context = this.canvas.getContext('2d');
         this.video = $('#video')[0];
 
-        window.descriptorLength = 256;
-        window.matchesShown = 30;
-        window.blurRadius = 3;//TODO AMO remove magic number
+        window.descriptorLength = TrackingConfig.defaultDescriptorLength;
+        window.matchesShown = TrackingConfig.defaultMatchesShown;
+        window.blurRadius = TrackingConfig.defaultBlurRadius;
     }
 
     private createTrackingImages() {
         let decetionImage = $('#detectionImages').children();
         for (let i = 0; i < decetionImage.length; i++) {
-            let successNotificationPosition = { x: 0, y: i * this.notificationHeight };
-            let trackedImage = TrackedImage.createFromDomElement(decetionImage[i], this.context, this.templateWidth, this.templateHeight, successNotificationPosition);
+            let successNotificationPosition = { x: 0, y: i * TrackingConfig.notificationHeight };
+            let trackedImage = TrackedImage.createFromDomElement(decetionImage[i], this.context, successNotificationPosition);
             this.trackingImages.push(trackedImage);
         }
     }
@@ -65,8 +57,9 @@ class TrackingComponent {
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
             if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
                 try {
-                    this.context.drawImage(this.video, 0, 0, this.videoWidth, this.videoHeight);
+                    this.context.drawImage(this.video, 0, 0, TrackingConfig.videoWidth, TrackingConfig.videoHeight);
                 } catch (err) {
+                    console.error(err);
                 }
             }
             this.startVideoFrame();
@@ -75,18 +68,17 @@ class TrackingComponent {
 
     private createAndStartTracker() {
         this.tracker = new ImageTracker();
-        tracking.inherits(ImageTracker, tracking.Tracker);//TODO AMO necessary?
         this.tracker.on('track', this.onTrack.bind(this));
         this.trackerTask = tracking.track(this.video, this.tracker, { camera: true });
         this.trackerTask.stop();// Waits for the user to accept the camera.
-        this.tracker.setTemplate(this.trackingImages, this.templateWidth, this.templateHeight);
+        this.tracker.setTemplate(this.trackingImages, TrackingConfig.templateWidth, TrackingConfig.templateHeight);
         this.trackerTask.run();
     }
 
     private onTrack(event) {
         event.matchingResults.forEach((imageToTrack: TrackedImage) => {
             this.drawBestMatchesAndSetConfidence(imageToTrack);
-            if (imageToTrack.confidenceOfMatch > this.recognizeLimitInPercent) {
+            if (imageToTrack.confidenceOfMatch > TrackingConfig.recognizeLimitInPercent) {
                 this.addIdentifiedNotification(imageToTrack);
             }
         }, this);
@@ -98,7 +90,7 @@ class TrackingComponent {
         for (let j = 0; j < Math.min(10, imageToTrack.match.length); j++) {
             let frame = imageToTrack.match[j].keypoint2;
             this.context.fillStyle = "#FF0000";
-            this.context.fillRect(frame[0], frame[1], this.matchingRectangleSize, this.matchingRectangleSize);
+            this.context.fillRect(frame[0], frame[1], TrackingConfig.matchingRectangleSize, TrackingConfig.matchingRectangleSize);
 
             let confidence = imageToTrack.match[j].confidence * 100;
             if (confidence > highestConfidenceOfMatch) {
@@ -113,7 +105,7 @@ class TrackingComponent {
         let position = imageToTrack.successNotificationPosition;
         this.context.font = "30px Verdana";
         this.context.fillStyle = "#FF0000";
-        this.context.fillRect(position.x, position.y, this.videoWidth, 30);
+        this.context.fillRect(position.x, position.y, TrackingConfig.videoWidth, 30);
         this.context.fillStyle = "#FFFFFF";
         this.context.fillText("Identified: " + imageToTrack.title, position.x + 10, position.y + 30);
     }
