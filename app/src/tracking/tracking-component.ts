@@ -23,6 +23,7 @@ class TrackingComponent {
     private tracker: any;
 
     public trackingImages: Array<TrackedImage> = [];
+    private currentNotifications: Set<string> = new Set<string>;
 
     constructor() {
         this.getDomComponents();
@@ -46,8 +47,7 @@ class TrackingComponent {
     private createTrackingImages() {
         let decetionImage = $('#detectionImages').children();
         for (let i = 0; i < decetionImage.length; i++) {
-            let successNotificationPosition = { x: 0, y: i * TrackingConfig.notificationHeight };
-            let trackedImage = TrackedImage.createFromDomElement(decetionImage[i], this.context, successNotificationPosition);
+            let trackedImage = TrackedImage.createFromDomElement(decetionImage[i], this.context);
             this.trackingImages.push(trackedImage);
         }
     }
@@ -76,12 +76,11 @@ class TrackingComponent {
     }
 
     private onTrack(event) {
+        this.currentNotifications.clear();
         event.matchingResults.forEach((imageToTrack: TrackedImage) => {
             this.drawBestMatchesAndSetConfidence(imageToTrack);
-            if (imageToTrack.confidenceOfMatch > TrackingConfig.recognizeLimitInPercent) {
-                this.addIdentifiedNotification(imageToTrack);
-            }
         }, this);
+        this.showNotifications();
     }
 
     private drawBestMatchesAndSetConfidence(imageToTrack: TrackedImage) {
@@ -98,16 +97,22 @@ class TrackingComponent {
             }
         }
 
+        if (highestConfidenceOfMatch > TrackingConfig.recognizeLimitInPercent) {
+            this.currentNotifications.add(imageToTrack.group);
+        }
+
         imageToTrack.confidenceOfMatch = highestConfidenceOfMatch;
     }
 
-    private addIdentifiedNotification(imageToTrack: TrackedImage) {
-        let position = imageToTrack.successNotificationPosition;
-        this.context.font = "30px Verdana";
-        this.context.fillStyle = "#FF0000";
-        this.context.fillRect(position.x, position.y, TrackingConfig.videoWidth, 30);
-        this.context.fillStyle = "#FFFFFF";
-        this.context.fillText("Identified: " + imageToTrack.title, position.x + 10, position.y + 30);
+    private showNotifications() {
+        if(this.currentNotifications.size > 0) {
+            let text = 'Identified: ' + Array.from(this.currentNotifications).join(', ');
+            this.context.font = "30px Verdana";
+            this.context.fillStyle = "rgba(255, 0, 0, 0.6)";
+            this.context.fillRect(0, 5, TrackingConfig.videoWidth, TrackingConfig.notificationHeight);
+            this.context.fillStyle = "#FFFFFF";
+            this.context.fillText(text, 20, TrackingConfig.notificationHeight - 12);
+        }
     }
 
     private createDevGuiControls() {

@@ -11,9 +11,9 @@ export class TrackedImage {
     private _match: any = [];
     private _confidenceOfMatch: number = 0;
 
-    constructor(public element: any, public pixels: any, public successNotificationPosition: any) {
+    constructor(public element: any, public pixels: any) {
         this.title = $(element).attr('data-title');
-        this.group = $(element).attr('data-title');
+        this.group = $(element).attr('data-group');
     }
 
     get match(): any {
@@ -37,9 +37,9 @@ export class TrackedImage {
         }
     }
 
-    public static createFromDomElement(element, context, successNotificationPosition): TrackedImage {
+    public static createFromDomElement(element, context): TrackedImage {
         context.drawImage(element, 0, 0, TrackingConfig.templateWidth, TrackingConfig.templateHeight);
         let pixels = context.getImageData(0, 0, TrackingConfig.templateWidth, TrackingConfig.templateHeight).data;
-        return new TrackedImage(element, pixels, successNotificationPosition);
+        return new TrackedImage(element, pixels);
     }
 }
