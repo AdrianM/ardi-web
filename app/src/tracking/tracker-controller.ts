@@ -1,5 +1,5 @@
 import {Component,View, bootstrap} from 'angular2/angular2';
-import TrackedImage from './tracked-image.ts';
+import {TrackedImage} from './tracked-image.ts';
 
 declare var window: any;
 declare var tracking: any;
@@ -30,7 +30,7 @@ class TrackerComponent {
 
     private templateWidth: number = 500;
     private templateHeight: number = 524;
-    private recognizeLimitInPercent: number = 85;
+    private recognizeLimitInPercent: number = 75;
 
     public trackedImages: Array<TrackedImage> = [];
 
@@ -57,8 +57,10 @@ class TrackerComponent {
 
 
         let decetionImage = $('#detectionImages').children();
+        //TODO AMO remove magic number
         for (let i = 0; i < decetionImage.length; i++) {
-            let trackedImage = TrackedImage.createFromDomElement(decetionImage[i], this.context, this.templateWidth, this.templateHeight);
+            let successNotificationPosition = { x: 0, y: i * 30 + 1 };
+            let trackedImage = TrackedImage.createFromDomElement(decetionImage[i], this.context, this.templateWidth, this.templateHeight, successNotificationPosition);
             this.trackedImages.push(trackedImage);
         }
     }
@@ -129,12 +131,13 @@ class TrackerComponent {
         this.trackerTask.stop();// Waits for the user to accept the camera.
     }
 
-    private addIdentifiedNotification(imageToTrack) {
+    private addIdentifiedNotification(imageToTrack: TrackedImage) {
+        let position = imageToTrack.successNotificationPosition;
         this.context.font = "30px Verdana";
         this.context.fillStyle = "#FF0000";
-        this.context.fillRect(0, 5, this.videoWidth, 30);
+        this.context.fillRect(position.x, position.y, this.videoWidth, 30);
         this.context.fillStyle = "#FFFFFF";
-        this.context.fillText("Identified: " + imageToTrack.id, 10, 30);
+        this.context.fillText("Identified: " + imageToTrack.title, position.x + 10, position.y + 30);
     }
 
     private requestFrame() {
