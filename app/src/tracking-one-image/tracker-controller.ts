@@ -32,7 +32,7 @@ class TrackerComponent {
 
     private templateWidth: number = 300;
     private templateHeight: number = 169;
-    private recognizeLimitInPercent: number = 80;
+    private recognizeLimitInPercent: number = 85;
 
     constructor() {
         this.initialize();
