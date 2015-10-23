@@ -4,6 +4,7 @@ declare var window: any;
 declare var tracking: any;
 declare var dat: any;
 declare var BoundingBoxTracker: any;
+declare var $: any;
 
 @Component({
     selector: 'tracking-app'
@@ -14,25 +15,22 @@ declare var BoundingBoxTracker: any;
 class TrackerComponent {
     private canvas: any;
     private context: any;
-    private image1: any;
-    private image2: any;
+    private detectionImages: any;
     private video: any;
     private boundingBox: any;
     private confidenceElement: any;
     private confidenceOverallElement: any;
     private trackerTask: any;
     private tracker: any;
-    private templateImageData: any;
 
     private width: number = 393;
     private height: number = 295;
-    private boxLeft: number = 403;
     private videoHeight: number = 295;
     private videoWidth: number = 393;
     private templateWidth: number = 300;
     private templateHeight: number = 378;
 
-    private recognizeLimitInPercent: number = 60;
+    private recognizeLimitInPercent: number = 85;
 
     constructor() {
         this.initialize();
@@ -46,8 +44,7 @@ class TrackerComponent {
     private initialize() {
         this.canvas = $('#canvas')[0];
         this.context = this.canvas.getContext('2d');
-        this.image1 = $('#image1')[0];
-        this.image2 = $('#image2')[0];
+        this.detectionImages = $('#detectionImages').children();
         this.video = $('#video')[0];
         this.boundingBox = $('#boundingBox')[0];
         this.confidenceElement = $('#confidence')[0];
@@ -56,6 +53,8 @@ class TrackerComponent {
         window.descriptorLength = 256;
         window.matchesShown = 30;
         window.blurRadius = 3;
+
+        this.canvas.width = this.videoWidth;
     }
 
     private createTracker() {
@@ -64,64 +63,74 @@ class TrackerComponent {
         };
         tracking.inherits(BoundingBoxTracker, tracking.Tracker);
 
-        BoundingBoxTracker.prototype.templateDescriptors_ = null;
-        BoundingBoxTracker.prototype.templateKeypoints_ = null;
+        BoundingBoxTracker.prototype.templateDescriptors_ = [];
+        BoundingBoxTracker.prototype.templateKeypoints_ = [];
         BoundingBoxTracker.prototype.fastThreshold = 60;
         BoundingBoxTracker.prototype.blur = 3;
 
-        BoundingBoxTracker.prototype.setTemplate = function (pixels, width, height) {
-            let blur = tracking.Image.blur(pixels, width, height, 3);
-            let grayscale = tracking.Image.grayscale(blur, width, height);
-            this.templateKeypoints_ = tracking.Fast.findCorners(grayscale, width, height);
-            this.templateDescriptors_ = tracking.Brief.getDescriptors(grayscale, width, this.templateKeypoints_);
-        };
+        BoundingBoxTracker.prototype.setTemplate = function (imagePixels, width, height) {
+            this.templateKeypoints_ = [];
+            this.templateDescriptors_ = [];
 
+            imagePixels.forEach(function (imagePixel) {
+                let blur = tracking.Image.blur(imagePixel, width, height, 3);
+                let grayscale = tracking.Image.grayscale(blur, width, height);
+                this.templateKeypoints_.push(tracking.Fast.findCorners(grayscale, width, height));
+                this.templateDescriptors_.push(tracking.Brief.getDescriptors(grayscale, width, this.templateKeypoints_));
+            }, this);
+        };
 
         BoundingBoxTracker.prototype.track = function (pixels, width, height) {
             let blur = tracking.Image.blur(pixels, width, height, this.blur);
             let grayscale = tracking.Image.grayscale(blur, width, height);
             let keypoints = tracking.Fast.findCorners(grayscale, width, height, this.fastThreshold);
             let descriptors = tracking.Brief.getDescriptors(grayscale, width, keypoints);
+
+            let matchingResults = [];
+            for (let i = 0; i < this.templateKeypoints_.length; i++) {
+                matchingResults.push(tracking.Brief.reciprocalMatch(this.templateKeypoints_[i], this.templateDescriptors_[i], keypoints, descriptors));
+            }
+
             this.emit('track', {
-                data: tracking.Brief.reciprocalMatch(this.templateKeypoints_, this.templateDescriptors_, keypoints, descriptors)
+                matchingResults: matchingResults
             });
         };
         this.tracker = new BoundingBoxTracker();
     }
 
     private initializeTracker() {
-        let actualOveralConfidenceMax = 0;
+        let actualOveralConfidenceMax = [];
 
+        //TODO AMO nicer
         this.tracker.on('track', (event) => {
-            event.data.sort((a, b)  => {
-                return b.confidence - a.confidence;
-            });
-            this.context.putImageData(this.templateImageData, this.boxLeft, 0);
 
-            let confidenceMax = 0;
+            let confidenceMax = [];
 
-            for (let i = 0; i < Math.min(10, event.data.length); i++) {
-                let template = event.data[i].keypoint1;
-                let frame = event.data[i].keypoint2;
-                this.context.beginPath();
-                this.context.strokeStyle = 'magenta';
-                this.context.moveTo(frame[0], frame[1]);
-                this.context.lineTo(this.boxLeft + template[0], template[1]);
-                this.context.stroke();
+            for (let i = 0; i < event.matchingResults.length; i++) {
+                let result = event.matchingResults[i];
+                result.sort((a, b)  => {
+                    return b.confidence - a.confidence;
+                });
 
-                if (event.data[i].confidence > confidenceMax) {
-                    confidenceMax = event.data[i].confidence * 100;
+                for (let j = 0; j < Math.min(10, result.length); j++) {
+                    let frame = result[j].keypoint2;
+                    this.context.fillStyle = "#FF0000";
+                    this.context.fillRect(frame[0], frame[1], 4, 4);
+
+                    if (result[j].confidence > confidenceMax[i] || !confidenceMax[i]) {
+                        confidenceMax[i] = result[j].confidence * 100;
+                    }
                 }
-            }
-            this.confidenceElement.textContent = confidenceMax;
+                this.confidenceElement.textContent = confidenceMax;
 
-            if (confidenceMax > actualOveralConfidenceMax) {
-                actualOveralConfidenceMax = confidenceMax;
-                this.confidenceOverallElement.textContent = actualOveralConfidenceMax;
-            }
+                if (confidenceMax[i] > actualOveralConfidenceMax[i] || !actualOveralConfidenceMax[i]) {
+                    actualOveralConfidenceMax[i] = confidenceMax[i];
+                    this.confidenceOverallElement.textContent = actualOveralConfidenceMax;
+                }
 
-            if (confidenceMax > this.recognizeLimitInPercent) {
-                this.addIdentifiedNotification();
+                if (confidenceMax[i] > this.recognizeLimitInPercent) {
+                    this.addIdentifiedNotification(result);
+                }
             }
         });
 
@@ -129,12 +138,13 @@ class TrackerComponent {
         this.trackerTask.stop();// Waits for the user to accept the camera.
     }
 
-    private addIdentifiedNotification() {
+    private addIdentifiedNotification(result) {
         this.context.font = "30px Verdana";
         this.context.fillStyle = "#FF0000";
         this.context.fillRect(0, 5, this.videoWidth, 30);
         this.context.fillStyle = "#FFFFFF";
         this.context.fillText("identified ", 10, 30);
+        console.log('matched' + result);
     }
 
     private requestFrame() {
@@ -151,17 +161,17 @@ class TrackerComponent {
     }
 
     private setTackerTemplate() {
-        this.templateImageData = this.getGreyscaledImageFromContainer();
-        this.canvas.width = this.boxLeft + this.templateWidth;
-        this.context.putImageData(this.templateImageData, this.boxLeft, 0);
-        this.trackerTask.stop();
-        this.tracker.setTemplate(this.templateImageData.data, this.templateWidth, this.templateHeight);
-        this.trackerTask.run();
-    }
+        let imagePixels = [];
+        for (let i = 0; i < this.detectionImages.length; i++) {
+            this.context.drawImage(this.detectionImages[i], 0, 0, this.templateWidth, this.templateHeight);
+            let templateImageData = this.context.getImageData(0, 0, this.templateWidth, this.templateHeight).data;
+            imagePixels.push(templateImageData);
+        }
 
-    private getGreyscaledImageFromContainer() {
-        this.context.drawImage(this.image1, 0, 0, this.templateWidth, this.templateHeight);
-        return this.context.getImageData(0, 0, this.templateWidth, this.templateHeight);
+
+        this.trackerTask.stop();
+        this.tracker.setTemplate(imagePixels, this.templateWidth, this.templateHeight);
+        this.trackerTask.run();
     }
 
     private intializeGuiControls() {
