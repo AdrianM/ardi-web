@@ -11,10 +11,10 @@ declare var $: any;
     selector: 'tracking-app'
 })
 @View({
-    templateUrl: 'src/tracking/tracker.tpl.html',
+    templateUrl: 'src/tracking/tracking.tpl.html',
     directives: [NgFor]
 })
-class TrackerComponent {
+class TrackingComponent {
     private canvas: any;
     private context: any;
     private video: any;
@@ -171,4 +171,4 @@ class TrackerComponent {
     }
 }
 
-bootstrap(TrackerComponent);
+bootstrap(TrackingComponent);

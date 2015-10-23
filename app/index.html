@@ -5,6 +5,7 @@
     <script src="node_modules/systemjs/dist/system.src.js"></script>
     <script src="node_modules/typescript/lib/typescript.js"></script>
     <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
+    <script src="node_modules/angular2/bundles/router.dev.js"></script>
     <script src="node_modules/jquery/dist/jquery.js"></script>
 
     <link rel="stylesheet" href="bower_components/tracking/examples/assets/demo.css">
@@ -18,8 +19,8 @@
             transpiler: 'typescript',
             typescriptOptions: {emitDecoratorMetadata: true}
         });
-//        System.import('./src/tracking-one-image/tracker-controller.ts');//TODO AMO to enable one image tracking
-        System.import('./src/tracking/tracker-controller.ts');
+//                System.import('./src/tracking-one-image/tracking-one-component.ts');//TODO AMO to enable one image tracking
+        System.import('./src/tracking/tracking-component.ts');
     </script>
 </head>
 <body>

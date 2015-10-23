@@ -9,9 +9,9 @@ declare var BoundingBoxTracker: any;
     selector: 'tracking-app'
 })
 @View({
-    templateUrl: 'src/tracking-one-image/tracker.tpl.html'
+    templateUrl: 'src/tracking-one-image/tracking-one.tpl.html'
 })
-class TrackerComponent {
+class TrackingOneComponent {
     private canvas: any;
     private context: any;
     private image1: any;
@@ -171,4 +171,4 @@ class TrackerComponent {
     }
 }
 
-bootstrap(TrackerComponent);
+bootstrap(TrackingOneComponent);
