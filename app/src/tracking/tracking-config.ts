@@ -1,5 +1,5 @@
 export class TrackingConfig {
-    public static recognizeLimitInPercent: number = 85;
+    public static recognizeLimitInPercent: number = 80;
 
     public static notificationHeight: number = 30;
     public static matchingRectangleSize: number = 4;
