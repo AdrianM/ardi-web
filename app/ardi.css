@@ -16,10 +16,10 @@
   position: absolute;
   right: -1px;
   top: 0px;
+  width: 100px;
 }
 .detection-images img{
-  max-width: 100px;
-  height: 100px;
+  width: 100px;
 }
 #video {
   position: absolute;
