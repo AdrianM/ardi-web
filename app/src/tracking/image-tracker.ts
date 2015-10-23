@@ -2,6 +2,7 @@ import {TrackedImage} from './tracked-image.ts';
 
 declare var tracking: any;
 
+//AMO until Tracking.js is migrated to typescript, this is the easiest way to inherit her Tracker
 export class ImageTracker extends tracking.Tracker {
     private imagesToTrack: Array<TrackedImage> = [];
     private fastThreshold: number = 60;
@@ -28,7 +29,6 @@ export class ImageTracker extends tracking.Tracker {
                 algorithmResults.descriptors);
         }, this);
 
-        //TODO AMO fix compile zeugs
         this.emit('track', {
             matchingResults: this.imagesToTrack
         });

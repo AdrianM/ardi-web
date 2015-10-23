@@ -61,26 +61,36 @@
    * @param {HTMLVideoElement} element Canvas element to track.
    * @param {object} opt_options Optional configuration to the tracker.
    */
-  //TODO AMO patched
+  //AMO patched to get access to rear camera (only if browser already support MediaStreamTrack.getSources)
   tracking.initUserMedia_ = function(element, opt_options) {
-    MediaStreamTrack.getSources(initUserMediaWithSources.bind(this, element, opt_options));
+    if(MediaStreamTrack && MediaStreamTrack.getSources){
+      MediaStreamTrack.getSources(getRearCameraAndInitUserMedia.bind(this, element, opt_options));
+    }else{
+      initUserMediaStream(element, opt_options, true);
+    }
   };
 
-  function initUserMediaWithSources(element, opt_options, sources){
+  function getRearCameraAndInitUserMedia(element, opt_options, sources){
+    if(!sources){
+      throw Error('No video resources found.');
+    }
+
     var videoSources = [];
-    //TODO AMO throw error if no sources
     sources.forEach(function(source) {
       if(source.kind === 'video'){
         videoSources.push(source);
       }
     });
 
-    var preferredVideoSource = videoSources.pop().id;
+    var videoOptions =  {
+      optional: [{sourceId: videoSources.pop().id}]
+    }
+    initUserMediaWithSources(element, opt_options, videoOptions);
+  }
 
+  function initUserMediaWithSources(element, opt_options, videoOptions){
     window.navigator.getUserMedia({
-          video: {
-            optional: [{sourceId: preferredVideoSource}]
-          },
+          video: videoOptions,
           audio: opt_options.audio
         }, function(stream) {
           try {
