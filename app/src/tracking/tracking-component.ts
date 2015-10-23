@@ -1,7 +1,7 @@
 import {Component,View, bootstrap, NgFor} from 'angular2/angular2';
 import {TrackedImage} from './tracked-image.ts';
 import {ImageTracker} from './image-tracker.ts';
-import {TrackingConfig} from './tracking-config';
+import {TrackingConfig} from './tracking-config.ts';
 
 declare var window: any;
 declare var tracking: any;

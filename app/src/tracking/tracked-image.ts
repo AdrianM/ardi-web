@@ -1,12 +1,12 @@
-import {TrackingConfig} from './tracking-config';
+import {TrackingConfig} from './tracking-config.ts';
+import {AlgorithmResults} from './image-tracker.ts';
 
 declare var $: any;
 
 export class TrackedImage {
     public title: string;
     public group: string;
-    public templateKeypoints: Array<any> = [];
-    public templateDescriptors: Array<any> = [];
+    public algorithmResults: AlgorithmResults;
     public confidenceOfMatchMaximum: number = 0;
     private _match: any = [];
     private _confidenceOfMatch: number = 0;
