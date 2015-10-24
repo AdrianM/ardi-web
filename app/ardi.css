@@ -26,8 +26,16 @@
   top: -1000px;
   cursor: crosshair;
 }
-.dg.main {
-  margin-top: 200px;
+.dg.ac {
+  position: relative !important;
+}
+.match-number-container{
+  margin-left: 30px;
+}
+
+.match-number-container .title {
+  margin-top: 5px;
+  font-weight: bold;
 }
 body {
   -webkit-touch-callout: none;
