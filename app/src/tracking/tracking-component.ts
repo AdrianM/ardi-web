@@ -23,7 +23,7 @@ class TrackingComponent {
     private tracker: any;
 
     public trackingImages: Array<TrackedImage> = [];
-    private currentNotifications: Set<string> = new Set<string>;
+    private currentNotificationTimestamp: Map<string, number> = new Map<string, number>();
 
     constructor() {
         this.getDomComponents();
@@ -76,7 +76,6 @@ class TrackingComponent {
     }
 
     private onTrack(event) {
-        this.currentNotifications.clear();
         event.matchingResults.forEach((imageToTrack: TrackedImage) => {
             this.drawBestMatchesAndSetConfidence(imageToTrack);
         }, this);
@@ -98,15 +97,25 @@ class TrackingComponent {
         }
 
         if (highestConfidenceOfMatch > TrackingConfig.recognizeLimitInPercent) {
-            this.currentNotifications.add(imageToTrack.group);
+            this.currentNotificationTimestamp.set(imageToTrack.group, Date.now());
         }
 
         imageToTrack.confidenceOfMatch = highestConfidenceOfMatch;
     }
 
     private showNotifications() {
-        if(this.currentNotifications.size > 0) {
-            let text = 'Identified: ' + Array.from(this.currentNotifications).join(', ');
+        let notificationGroups = [];
+
+        this.currentNotificationTimestamp.forEach((timestamp, group) => {
+            if ((Date.now() - timestamp) < TrackingConfig.notificationDuration) {
+                notificationGroups.push(group);
+            } else {
+                this.currentNotificationTimestamp.delete(group);
+            }
+        });
+
+        if (notificationGroups.length > 0) {
+            let text = 'Identified: ' + notificationGroups.join(', ');
             this.context.font = "30px Verdana";
             this.context.fillStyle = "rgba(255, 0, 0, 0.6)";
             this.context.fillRect(0, 5, TrackingConfig.videoWidth, TrackingConfig.notificationHeight);
