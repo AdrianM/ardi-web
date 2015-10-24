@@ -1,7 +1,6 @@
 <div id="detectionImages" class="detection-images">
     <img data-group="Dieci Pizza" data-title="Pizza1" src="../../detection-images/pizza1.png"/>
     <img data-group="Dieci Pizza" data-title="Pizza2" src="../../detection-images/pizza2.png"/>
-    <img data-group="Book" data-title="Buch1" src="../../detection-images/buch1.png"/>
     <img data-group="Book" data-title="Buch2" src="../../detection-images/buch2.png"/>
     <img data-group="Tablet" data-title="Tablet" src="../../detection-images/tablet.png"/>
 </div>
@@ -9,16 +8,14 @@
 <video id="video" width="786" height="590" preload autoplay loop muted controls></video>
 <canvas id="canvas" width="1024" height="590"></canvas>
 
-<div>Match</div>
-<ul>
-    <li *ng-for="#trackingImage of trackingImages">
+<div class="match-number-container">
+    <div class="title">Match</div>
+    <div *ng-for="#trackingImage of trackingImages">
         {{trackingImage.title}}: {{trackingImage.confidenceOfMatch}}
-    </li>
-</ul>
-
-<div>Match (Max)</div>
-<ul>
-    <li *ng-for="#trackingImage of trackingImages">
+    </div>
+    <div class="title">Match (Max)</div>
+    <div *ng-for="#trackingImage of trackingImages">
         {{trackingImage.title}}: {{trackingImage.confidenceOfMatchMaximum}}
-    </li>
-</ul>
+    </div>
+    <div class="title">Recognition threshold: {{recognitionThreshold}}</div>
+</div>

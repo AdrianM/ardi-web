@@ -23,6 +23,7 @@ class TrackingComponent {
     private tracker: any;
 
     public trackingImages: Array<TrackedImage> = [];
+    public recognitionThreshold: number = TrackingConfig.recognitionThreshold;
     private currentNotificationTimestamp: Map<string, number> = new Map<string, number>();
 
     constructor() {
@@ -96,7 +97,7 @@ class TrackingComponent {
             }
         }
 
-        if (highestConfidenceOfMatch > TrackingConfig.recognizeLimitInPercent) {
+        if (highestConfidenceOfMatch > TrackingConfig.recognitionThreshold) {
             this.currentNotificationTimestamp.set(imageToTrack.group, Date.now());
         }
 

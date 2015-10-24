@@ -11,6 +11,7 @@ declare var BoundingBoxTracker: any;
 @View({
     templateUrl: 'src/tracking-one-image/tracking-one.tpl.html'
 })
+//One picture tracking: use this only for analysis, part of the code is from a traking.js demo and is ugly
 class TrackingOneComponent {
     private canvas: any;
     private context: any;
