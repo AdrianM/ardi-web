@@ -1,6 +1,7 @@
 import {Component,View, bootstrap, NgFor} from 'angular2/angular2';
 import {TrackedImage} from './tracked-image.ts';
 import {ImageTracker} from './image-tracker.ts';
+import {ImageGroup} from './image-group.ts';
 import {TrackingConfig} from './tracking-config.ts';
 
 declare var window: any;
@@ -24,7 +25,7 @@ class TrackingComponent {
 
     public trackingImages: Array<TrackedImage> = [];
     public recognitionThreshold: number = TrackingConfig.recognitionThreshold;
-    private currentNotificationTimestamp: Map<string, number> = new Map<string, number>();
+    public imageGroups: Map<string, ImageGroup> = new Map<string, ImageGroup>();
 
     constructor() {
         this.getDomComponents();
@@ -77,8 +78,11 @@ class TrackingComponent {
     }
 
     private onTrack(event) {
+        //TODO AMO reset groups
+
         event.matchingResults.forEach((imageToTrack: TrackedImage) => {
             this.drawBestMatchesAndSetConfidence(imageToTrack);
+            this.setConfidenceOnGroup(imageToTrack);
         }, this);
         this.showNotifications();
     }
@@ -96,23 +100,25 @@ class TrackingComponent {
                 highestConfidenceOfMatch = confidence;
             }
         }
-
-        if (highestConfidenceOfMatch > TrackingConfig.recognitionThreshold) {
-            this.currentNotificationTimestamp.set(imageToTrack.group, Date.now());
-        }
-
         imageToTrack.confidenceOfMatch = highestConfidenceOfMatch;
+    }
+
+    private setConfidenceOnGroup(imageToTrack: TrackedImage) {
+        let groupName = imageToTrack.group;
+        if (!this.imageGroups.has(groupName)) {
+            this.imageGroups.set(groupName, new ImageGroup(groupName));
+        }
+        this.imageGroups.get(groupName).addConfidenceRate(imageToTrack.confidenceOfMatch);
     }
 
     private showNotifications() {
         let notificationGroups = [];
 
-        this.currentNotificationTimestamp.forEach((timestamp, group) => {
-            if ((Date.now() - timestamp) < TrackingConfig.notificationDuration) {
-                notificationGroups.push(group);
-            } else {
-                this.currentNotificationTimestamp.delete(group);
+        this.imageGroups.forEach((imageGroups, groupName) => {
+            if (imageGroups.hasMatch()) {
+                notificationGroups.push(groupName);
             }
+            imageGroups.resetConfidenceRates();
         });
 
         if (notificationGroups.length > 0) {

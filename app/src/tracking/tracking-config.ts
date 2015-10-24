@@ -1,6 +1,6 @@
 export class TrackingConfig {
 
-    public static recognitionThreshold: number = 83;
+    public static recognitionThreshold: number = 81;
 
     public static notificationDuration: number = 2000;
     public static notificationHeight: number = 60;

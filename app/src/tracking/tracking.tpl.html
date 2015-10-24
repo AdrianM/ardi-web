@@ -1,7 +1,10 @@
 <div id="detectionImages" class="detection-images">
     <img data-group="Dieci Pizza" data-title="Pizza1" src="../../detection-images/pizza1.png"/>
     <img data-group="Dieci Pizza" data-title="Pizza2" src="../../detection-images/pizza2.png"/>
+    <img data-group="Book" data-title="Buch1" src="../../detection-images/buch1.png"/>
     <img data-group="Book" data-title="Buch2" src="../../detection-images/buch2.png"/>
+    <img data-group="Book" data-title="Buch3" src="../../detection-images/buch3.png"/>
+    <img data-group="Book" data-title="Buch4" src="../../detection-images/buch4.png"/>
     <img data-group="Tablet" data-title="Tablet" src="../../detection-images/tablet.png"/>
 </div>
 
@@ -9,7 +12,11 @@
 <canvas id="canvas" width="1024" height="590"></canvas>
 
 <div class="match-number-container">
-    <div class="title">Match</div>
+    <div class="title">Match groups</div>
+    <div *ng-for="#imageGroup of imageGroups.values()">
+        {{imageGroup.name}}: {{imageGroup.averageConfidence}}
+    </div>
+    <div class="title">Match images</div>
     <div *ng-for="#trackingImage of trackingImages">
         {{trackingImage.title}}: {{trackingImage.confidenceOfMatch}}
     </div>
