@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+    <title>ARDI</title>
+    <script src="node_modules/systemjs/dist/system.src.js"></script>
+    <script src="node_modules/typescript/lib/typescript.js"></script>
+    <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+
+    <link rel="stylesheet" href="bower_components/tracking/examples/assets/demo.css">
+    <link rel="stylesheet" href="./ardi.css">
+
+    <script src="bower_components/tracking/build/tracking.js"></script>
+    <script src="bower_components/dat-gui/build/dat.gui.min.js"></script>
+
+    <script>
+        System.config({
+            transpiler: 'typescript',
+            typescriptOptions: {emitDecoratorMetadata: true}
+        });
+        //Enable this line to activate one-image-scan (use it only for analysis, part of the code is from a traking.js demo and is ugly)
+        //System.import('./src/tracking-one-image/tracking-one-component.ts');
+        System.import('./src/tracking/tracking-component.ts');
+    </script>
+</head>
+<body>
+<tracking-app>loading...</tracking-app>
+</body>
+</html>

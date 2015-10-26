@@ -1,0 +1,47 @@
+.ardi-boundingBox {
+  display: none;
+  position: absolute;
+  background: white;
+  border: 1px dashed;
+  opacity: .5;
+  z-index: 1;
+}
+.hidden-image {
+  position: absolute;
+  right: -1px;
+  top: 0px;
+  width: 100px;
+}
+.detection-images {
+  position: absolute;
+  right: -1px;
+  top: 0px;
+  width: 100px;
+}
+.detection-images img{
+  width: 100px;
+}
+#video {
+  position: absolute;
+  top: -1000px;
+  cursor: crosshair;
+}
+.dg.ac {
+  position: relative !important;
+}
+.match-number-container{
+  margin-left: 30px;
+}
+
+.match-number-container .title {
+  margin-top: 5px;
+  font-weight: bold;
+}
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

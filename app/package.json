@@ -1,0 +1,27 @@
+{
+  "name": "ardi-web",
+  "version": "1.0.0",
+  "description": "ardi",
+  "main": "src/index.html",
+  "dependencies": {
+    "angular2": "^2.0.0-alpha.44",
+    "jquery": "^2.1.4",
+    "systemjs": "^0.19.5"
+  },
+  "devDependencies": {
+    "typescript": "^1.6.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AdrianM/ardi-web.git"
+  },
+  "author": "AdrianM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AdrianM/ardi-web/issues"
+  },
+  "homepage": "https://github.com/AdrianM/ardi-web#readme"
+}
